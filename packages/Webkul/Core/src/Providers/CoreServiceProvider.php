@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Webkul\Core\Console\Commands\BagistoVersion;
 use Webkul\Core\Console\Commands\ExchangeRateUpdate;
-use Webkul\Core\Console\Commands\InvoiceOverdueCron;
 use Webkul\Core\Console\Commands\StorageSync;
 use Webkul\Core\Console\Commands\TranslationsChecker;
 use Webkul\Core\Contracts\DatabaseGrammar;
@@ -23,7 +22,7 @@ use Webkul\Core\Filesystem\StorageConfigurator;
 use Webkul\Core\Helpers\Database\Grammar\MySqlGrammar;
 use Webkul\Core\Helpers\Database\Grammar\PgSqlGrammar;
 use Webkul\Core\View\Compilers\BladeCompiler;
-use Webkul\Theme\ViewRenderEventManager;
+use Webkul\Core\View\ViewRenderEventManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -39,6 +38,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerOverrides();
 
         $this->registerDatabaseGrammar();
+
+        $this->app->singleton(ViewRenderEventManager::class);
     }
 
     /**
@@ -63,8 +64,6 @@ class CoreServiceProvider extends ServiceProvider
         });
 
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
-            $schedule->command('invoice:cron')->dailyAt('3:00');
-
             $this->registerExchangeRateSchedule($schedule);
         });
 
@@ -117,7 +116,6 @@ class CoreServiceProvider extends ServiceProvider
             $this->commands([
                 BagistoVersion::class,
                 ExchangeRateUpdate::class,
-                InvoiceOverdueCron::class,
                 StorageSync::class,
                 TranslationsChecker::class,
             ]);

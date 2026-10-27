@@ -128,7 +128,7 @@ class Order extends Model implements OrderContract
     /**
      * The amount still to be invoiced, in the base currency.
      */
-    public function getBaseTotalDueAttribute()
+    public function getBaseTotalDueAttribute(): float
     {
         return $this->dueAfterCancellations(
             $this->base_grand_total - $this->base_grand_total_invoiced,
@@ -139,7 +139,7 @@ class Order extends Model implements OrderContract
     /**
      * The amount still to be invoiced, in the currency the order was placed in.
      */
-    public function getTotalDueAttribute()
+    public function getTotalDueAttribute(): float
     {
         return $this->dueAfterCancellations(
             $this->grand_total - $this->grand_total_invoiced,

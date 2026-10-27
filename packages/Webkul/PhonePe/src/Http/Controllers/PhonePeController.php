@@ -4,7 +4,6 @@ namespace Webkul\PhonePe\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 use Webkul\Checkout\Facades\Cart;
 use Webkul\Checkout\Repositories\CartRepository;
@@ -204,8 +203,8 @@ class PhonePeController extends Controller
     }
 
     /**
-     * Handle incoming webhook notifications from PhonePe, whose raw payload is logged so a payment
-     * event can be traced afterwards.
+     * Handle the JSON payload PhonePe posts after every payment event, logging it raw so a
+     * notification can be debugged later.
      *
      * @return JsonResponse
      */

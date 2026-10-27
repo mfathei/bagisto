@@ -2,7 +2,7 @@
 
 namespace Webkul\BookingProduct\Listeners;
 
-use Webkul\Theme\ViewRenderEventManager;
+use Webkul\Core\View\ViewRenderEventManager;
 
 class PriceNote
 {

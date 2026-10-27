@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Event;
 use Webkul\CatalogRule\Contracts\CatalogRule;
 use Webkul\CatalogRule\Helpers\CatalogRuleIndex;
-use Webkul\DataTransfer\Jobs\Concerns\RetriesOnDeadlock;
+use Webkul\Core\Jobs\Concerns\RetriesOnDeadlock;
 use Webkul\Product\Helpers\Indexers\Price as PriceIndexer;
 use Webkul\Product\Repositories\ProductRepository;
 

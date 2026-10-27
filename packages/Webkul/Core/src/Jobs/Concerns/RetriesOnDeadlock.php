@@ -1,6 +1,6 @@
 <?php
 
-namespace Webkul\DataTransfer\Jobs\Concerns;
+namespace Webkul\Core\Jobs\Concerns;
 
 use Illuminate\Database\DetectsConcurrencyErrors;
 use Illuminate\Database\QueryException;

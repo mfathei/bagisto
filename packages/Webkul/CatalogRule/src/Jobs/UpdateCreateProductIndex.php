@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Webkul\CatalogRule\Helpers\CatalogRuleIndex;
-use Webkul\DataTransfer\Jobs\Concerns\RetriesOnDeadlock;
+use Webkul\Core\Jobs\Concerns\RetriesOnDeadlock;
 use Webkul\Product\Contracts\Product;
 
 class UpdateCreateProductIndex implements ShouldQueue
