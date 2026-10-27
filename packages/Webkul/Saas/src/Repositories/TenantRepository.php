@@ -39,7 +39,7 @@ class TenantRepository extends Repository
     public function paginateFiltered(array $filters, int $perPage = 20): LengthAwarePaginator
     {
         return $this->model->newQuery()
-            ->with(['plan', 'currentSubscription', 'domains'])
+            ->with(['plan', 'currentSubscription', 'domains', 'owner'])
             ->when(
                 ! empty($filters['search']),
                 fn ($query) => $query->where(function ($query) use ($filters) {

@@ -146,9 +146,15 @@ class PlanController extends Controller
             'slug' => ['required', 'string', 'max:60', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $unique],
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'yearly_price' => ['nullable', 'numeric', 'min:0', 'max:9999999.99'],
             'currency' => ['required', 'string', 'size:3'],
             'billing_interval' => ['required', Rule::in(['monthly', 'quarterly', 'yearly'])],
             'trial_days' => ['required', 'integer', 'min:0', 'max:365'],
+            'premium_themes' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'offer_status' => ['nullable', Rule::in(['inactive', 'active'])],
+            'offer_title' => ['nullable', 'string', 'max:120'],
+            'offer_type' => ['nullable', Rule::in(['percentage', 'fixed'])],
+            'offer_discount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['nullable', 'boolean'],
             'is_public' => ['nullable', 'boolean'],
@@ -186,14 +192,28 @@ class PlanController extends Controller
             $features[$feature->value] = (bool) ($data['features'][$feature->value] ?? false);
         }
 
+        foreach (['max_categories', 'max_attributes', 'max_attribute_families', 'max_channels'] as $quota) {
+            $value = $data['limits'][$quota] ?? null;
+
+            $limits[$quota] = ($value === null || $value === '')
+                ? null
+                : max(0, (int) $value);
+        }
+
         return [
             'name' => $data['name'],
             'slug' => strtolower($data['slug']),
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
+            'yearly_price' => $data['yearly_price'] ?? null,
             'currency' => strtoupper($data['currency']),
             'billing_interval' => $data['billing_interval'],
             'trial_days' => (int) $data['trial_days'],
+            'premium_themes' => (int) ($data['premium_themes'] ?? 0),
+            'offer_status' => $data['offer_status'] ?? 'inactive',
+            'offer_title' => $data['offer_title'] ?? null,
+            'offer_type' => $data['offer_type'] ?? 'percentage',
+            'offer_discount' => $data['offer_discount'] ?? null,
             'limits' => $limits,
             'features' => $features,
             'is_active' => (bool) ($data['is_active'] ?? false),

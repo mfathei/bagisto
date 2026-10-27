@@ -139,9 +139,12 @@ class TenantManager
     {
         $fields = [
             'name',
+            'slug',
             'legal_name',
             'email',
             'phone',
+            'cname',
+            'logo',
             'timezone',
             'default_locale',
             'default_currency',
@@ -165,12 +168,30 @@ class TenantManager
 
         $tenant->save();
 
+        if (! empty($data['owner_name']) && $tenant->owner_admin_id) {
+            $this->admins->update(['name' => $data['owner_name']], $tenant->owner_admin_id);
+
+            $changes[] = 'owner_name';
+        }
+
         $this->resolver->forgetForTenant($tenant);
 
         $this->audit->forTenant($tenant, AuditAction::TenantUpdated, [
             'description' => 'Tenant details updated.',
             'metadata' => ['fields' => $changes],
         ]);
+
+        return $tenant->refresh();
+    }
+
+    /**
+     * Move a tenant onto another plan.
+     */
+    public function assignPlan(Tenant $tenant, Plan $plan): Tenant
+    {
+        $this->subscriptions->changePlan($tenant, $plan);
+
+        $tenant->forceFill(['plan_id' => $plan->getKey()])->save();
 
         return $tenant->refresh();
     }

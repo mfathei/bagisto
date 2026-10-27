@@ -4,13 +4,17 @@ use Illuminate\Support\Facades\Route;
 use Webkul\Saas\Http\Controllers\SuperAdmin\AuditLogController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\AuthController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\BillingController;
+use Webkul\Saas\Http\Controllers\SuperAdmin\CmsController;
+use Webkul\Saas\Http\Controllers\SuperAdmin\ConfigureController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\DashboardController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\DomainController;
+use Webkul\Saas\Http\Controllers\SuperAdmin\InsightsController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\PlanController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\ProvisioningController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\SettingsController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\SubscriptionController;
 use Webkul\Saas\Http\Controllers\SuperAdmin\TenantController;
+use Webkul\Saas\Http\Controllers\SuperAdmin\TenantDataController;
 
 Route::get('login', [AuthController::class, 'create'])->name('login');
 
@@ -35,13 +39,33 @@ Route::middleware('saas.super-admin')->group(function () {
         ->middleware('saas.super-admin.ability:tenants.manage')
         ->name('tenants.store');
 
+    Route::get('tenants/orders', [TenantDataController::class, 'orders'])
+        ->middleware('saas.super-admin.ability:tenants.view')
+        ->name('tenants.orders');
+
+    Route::get('tenants/products', [TenantDataController::class, 'products'])
+        ->middleware('saas.super-admin.ability:tenants.view')
+        ->name('tenants.products');
+
+    Route::get('tenants/customers', [TenantDataController::class, 'customers'])
+        ->middleware('saas.super-admin.ability:tenants.view')
+        ->name('tenants.customers');
+
     Route::get('tenants/{tenant}', [TenantController::class, 'show'])
         ->middleware('saas.super-admin.ability:tenants.view')
         ->name('tenants.show');
 
+    Route::get('tenants/{tenant}/edit', [TenantController::class, 'edit'])
+        ->middleware('saas.super-admin.ability:tenants.manage')
+        ->name('tenants.edit');
+
     Route::put('tenants/{tenant}', [TenantController::class, 'update'])
         ->middleware('saas.super-admin.ability:tenants.manage')
         ->name('tenants.update');
+
+    Route::post('tenants/{tenant}/assign-plan', [TenantController::class, 'assignPlan'])
+        ->middleware('saas.super-admin.ability:tenants.manage')
+        ->name('tenants.assign_plan');
 
     Route::post('tenants/{tenant}/approve', [TenantController::class, 'approve'])
         ->middleware('saas.super-admin.ability:tenants.manage')
@@ -174,4 +198,16 @@ Route::middleware('saas.super-admin')->group(function () {
     Route::get('audit', [AuditLogController::class, 'index'])
         ->middleware('saas.super-admin.ability:audit.view')
         ->name('audit.index');
+
+    Route::get('insights', [InsightsController::class, 'index'])
+        ->middleware('saas.super-admin.ability:tenants.view')
+        ->name('insights.index');
+
+    Route::get('cms', [CmsController::class, 'index'])
+        ->middleware('saas.super-admin.ability:settings.manage')
+        ->name('cms.index');
+
+    Route::get('configure', [ConfigureController::class, 'index'])
+        ->middleware('saas.super-admin.ability:settings.manage')
+        ->name('configure.index');
 });

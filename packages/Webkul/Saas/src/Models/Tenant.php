@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use Webkul\Core\Models\ChannelProxy;
 use Webkul\Saas\Contracts\Tenant as TenantContract;
 use Webkul\Saas\Enums\TenantStatus;
@@ -37,6 +38,8 @@ class Tenant extends Model implements TenantContract
         'legal_name',
         'email',
         'phone',
+        'cname',
+        'logo',
         'status',
         'plan_id',
         'current_subscription_id',
@@ -218,6 +221,28 @@ class Tenant extends Model implements TenantContract
         $scheme = request()->isSecure() ? 'https' : 'http';
 
         return $scheme.'://'.$domain->hostname;
+    }
+
+    /**
+     * Public URL of the tenant logo, when one has been uploaded.
+     */
+    public function logoUrl(): ?string
+    {
+        return $this->logo ? Storage::url($this->logo) : null;
+    }
+
+    /**
+     * Administration panel sign-in URL for the tenant storefront.
+     */
+    public function adminPanelUrl(): ?string
+    {
+        $storefront = $this->storefrontUrl();
+
+        if (! $storefront) {
+            return null;
+        }
+
+        return rtrim($storefront, '/').'/'.trim((string) config('app.admin_url'), '/').'/login';
     }
 
     /**

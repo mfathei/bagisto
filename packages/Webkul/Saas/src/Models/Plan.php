@@ -32,9 +32,15 @@ class Plan extends Model implements PlanContract
         'slug',
         'description',
         'price',
+        'yearly_price',
         'currency',
         'billing_interval',
         'trial_days',
+        'premium_themes',
+        'offer_status',
+        'offer_title',
+        'offer_type',
+        'offer_discount',
         'limits',
         'features',
         'is_active',
@@ -49,7 +55,10 @@ class Plan extends Model implements PlanContract
      */
     protected $casts = [
         'price' => 'decimal:2',
+        'yearly_price' => 'decimal:2',
         'trial_days' => 'integer',
+        'premium_themes' => 'integer',
+        'offer_discount' => 'decimal:2',
         'limits' => 'array',
         'features' => 'array',
         'is_active' => 'boolean',
@@ -111,5 +120,23 @@ class Plan extends Model implements PlanContract
             'quarterly' => round($price / 3, 2),
             default => $price,
         };
+    }
+
+    /**
+     * Yearly amount advertised for the plan, falling back to twelve months.
+     */
+    public function yearlyAmount(): float
+    {
+        $yearly = (float) $this->yearly_price;
+
+        return $yearly > 0 ? $yearly : round((float) $this->price * 12, 2);
+    }
+
+    /**
+     * Whether the plan currently advertises an offer.
+     */
+    public function hasOffer(): bool
+    {
+        return $this->offer_status === 'active';
     }
 }
