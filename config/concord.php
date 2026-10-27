@@ -50,6 +50,7 @@ return [
         Webkul\RMA\Providers\ModuleServiceProvider::class,
         Webkul\Razorpay\Providers\ModuleServiceProvider::class,
         Webkul\Rule\Providers\ModuleServiceProvider::class,
+        Webkul\Saas\Providers\ModuleServiceProvider::class,
         Webkul\Sales\Providers\ModuleServiceProvider::class,
         Webkul\Shipping\Providers\ModuleServiceProvider::class,
         Webkul\Shop\Providers\ModuleServiceProvider::class,

@@ -105,6 +105,15 @@
             <directory suffix="Test.php">packages/Webkul/Rule/tests/Unit</directory>
         </testsuite>
 
+        <!-- Saas package testsuites. -->
+        <testsuite name="Saas Feature Test">
+            <directory suffix="Test.php">packages/Webkul/Saas/tests/Feature</directory>
+        </testsuite>
+
+        <testsuite name="Saas Unit Test">
+            <directory suffix="Test.php">packages/Webkul/Saas/tests/Unit</directory>
+        </testsuite>
+
         <!-- Sales package testsuites. -->
         <testsuite name="Sales Unit Test">
             <directory suffix="Test.php">packages/Webkul/Sales/tests/Unit</directory>

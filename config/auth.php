@@ -1,6 +1,7 @@
 <?php
 
 use Webkul\Customer\Models\Customer;
+use Webkul\Saas\Models\SuperAdmin;
 use Webkul\User\Models\Admin;
 
 return [
@@ -48,6 +49,11 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        'super_admin' => [
+            'driver' => 'session',
+            'provider' => 'super_admins',
+        ],
     ],
 
     /*
@@ -76,6 +82,11 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => Admin::class,
+        ],
+
+        'super_admins' => [
+            'driver' => 'eloquent',
+            'model' => SuperAdmin::class,
         ],
     ],
 
@@ -109,6 +120,13 @@ return [
         'admins' => [
             'provider' => 'admins',
             'table' => 'admin_password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'super_admins' => [
+            'provider' => 'super_admins',
+            'table' => 'saas_super_admin_password_resets',
             'expire' => 60,
             'throttle' => 60,
         ],

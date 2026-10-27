@@ -34,6 +34,7 @@ use Webkul\Product\Providers\ProductServiceProvider;
 use Webkul\Razorpay\Providers\RazorpayServiceProvider;
 use Webkul\RMA\Providers\RMAServiceProvider;
 use Webkul\Rule\Providers\RuleServiceProvider;
+use Webkul\Saas\Providers\SaasServiceProvider;
 use Webkul\Sales\Providers\SalesServiceProvider;
 use Webkul\Shipping\Providers\ShippingServiceProvider;
 use Webkul\Shop\Providers\ShopServiceProvider;
@@ -97,4 +98,5 @@ return [
     TaxServiceProvider::class,
     ThemeServiceProvider::class,
     UserServiceProvider::class,
+    SaasServiceProvider::class,
 ];

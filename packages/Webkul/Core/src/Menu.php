@@ -123,6 +123,14 @@ class Menu
         $menu = Arr::undot(Arr::dot($menuWithDotNotation));
 
         foreach ($menu as $menuItemKey => $menuItem) {
+            if (! isset($menuItem['key'])) {
+                foreach ($this->processSubMenuItems($menuItem) as $subMenuItem) {
+                    $this->addItem($subMenuItem);
+                }
+
+                continue;
+            }
+
             $subMenuItems = $this->processSubMenuItems($menuItem);
 
             $this->addItem(new MenuItem(
@@ -137,25 +145,28 @@ class Menu
     }
 
     /**
-     * Process sub menu items.
+     * Process sub menu items, lifting the children of a level that holds no menu item.
      */
     private function processSubMenuItems($menuItem): Collection
     {
         return collect($menuItem)
             ->sortBy('sort')
             ->filter(fn ($value) => is_array($value))
-            ->map(function ($subMenuItem) {
-                $subSubMenuItems = $this->processSubMenuItems($subMenuItem);
+            ->flatMap(function ($subMenuItem) {
+                if (! isset($subMenuItem['key'])) {
+                    return $this->processSubMenuItems($subMenuItem);
+                }
 
-                return new MenuItem(
+                return [new MenuItem(
                     key: $subMenuItem['key'],
                     name: trans($subMenuItem['name']),
                     route: $subMenuItem['route'],
                     sort: $subMenuItem['sort'],
                     icon: $subMenuItem['icon'],
-                    children: $subSubMenuItems,
-                );
-            });
+                    children: $this->processSubMenuItems($subMenuItem),
+                )];
+            })
+            ->values();
     }
 
     /**

@@ -3,6 +3,7 @@
 use Illuminate\Support\Collection;
 use Webkul\Core\Menu;
 use Webkul\Core\Menu\MenuItem;
+use Webkul\User\Facades\Bouncer;
 
 /**
  * Create config for menu items.
@@ -88,4 +89,72 @@ it('should process sub menu items', function () {
     expect($subMenuItems->last()->key)->toBe('sales');
 
     expect($subMenuItems->last()->name)->toBe(trans('admin::app.components.layouts.sidebar.sales'));
+});
+
+// ==== Skipped Levels ====
+
+it('lifts sub menu items whose parent level holds no menu item', function () {
+    Bouncer::shouldReceive('hasPermission')->andReturn(true);
+
+    config()->set('menu.admin', [
+        [
+            'key' => 'saas',
+            'name' => 'admin::app.components.layouts.sidebar.sales',
+            'route' => 'admin.dashboard.index',
+            'sort' => 1,
+            'icon' => 'icon-settings',
+        ], [
+            'key' => 'saas.tenant.dashboard',
+            'name' => 'admin::app.components.layouts.sidebar.dashboard',
+            'route' => 'admin.dashboard.index',
+            'sort' => 1,
+            'icon' => '',
+        ], [
+            'key' => 'saas.tenant.customers',
+            'name' => 'admin::app.components.layouts.sidebar.customers',
+            'route' => 'admin.customers.customers.index',
+            'sort' => 2,
+            'icon' => '',
+        ],
+    ]);
+
+    $items = (new Menu)->getItems('admin');
+
+    expect($items)->toHaveCount(1)
+        ->and($items->first()->getKey())->toBe('saas')
+        ->and($items->first()->getChildren()->pluck('key')->all())
+        ->toBe(['saas.tenant.dashboard', 'saas.tenant.customers']);
+});
+
+it('lifts sub menu items to the top when their section holds no menu item', function () {
+    Bouncer::shouldReceive('hasPermission')->andReturnUsing(fn ($key) => $key !== 'saas');
+
+    config()->set('menu.admin', [
+        [
+            'key' => 'saas',
+            'name' => 'admin::app.components.layouts.sidebar.sales',
+            'route' => 'admin.dashboard.index',
+            'sort' => 1,
+            'icon' => 'icon-settings',
+        ], [
+            'key' => 'saas.tenant.dashboard',
+            'name' => 'admin::app.components.layouts.sidebar.dashboard',
+            'route' => 'admin.dashboard.index',
+            'sort' => 1,
+            'icon' => '',
+        ], [
+            'key' => 'saas.tenant.customers',
+            'name' => 'admin::app.components.layouts.sidebar.customers',
+            'route' => 'admin.customers.customers.index',
+            'sort' => 2,
+            'icon' => '',
+        ],
+    ]);
+
+    $items = (new Menu)->getItems('admin');
+
+    expect($items->pluck('key')->all())->toBe([
+        'saas.tenant.dashboard',
+        'saas.tenant.customers',
+    ]);
 });
