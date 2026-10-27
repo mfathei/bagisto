@@ -13,7 +13,7 @@
     @include('saas::layouts.styles')
 </head>
 
-<body>
+<body class="@yield('body-class')">
     <header class="topbar">
         <span class="brand">{{ config('saas.platform_name') }}</span>
 
@@ -22,7 +22,7 @@
         @endif
     </header>
 
-    <main class="container narrow">
+    <main class="container narrow @yield('container-class')">
         @if (session('success'))
             <div class="alert success">{{ session('success') }}</div>
         @endif
@@ -32,7 +32,7 @@
         @endif
 
         @if ($errors->any())
-            <div class="alert error">
+            <div class="alert error" role="alert">
                 <ul style="margin: 0; padding-inline-start: 18px;">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -43,5 +43,7 @@
 
         @yield('content')
     </main>
+
+    @stack('scripts')
 </body>
 </html>

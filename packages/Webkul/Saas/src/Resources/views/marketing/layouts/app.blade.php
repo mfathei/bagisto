@@ -43,5 +43,36 @@
     </main>
 
     @include('saas::marketing.partials.footer')
+
+    <script>
+        document.querySelectorAll('.mobile-nav').forEach((menu) => {
+            menu.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => {
+                    menu.open = false;
+                });
+            });
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+            document.querySelectorAll('.mobile-nav[open]').forEach((menu) => {
+                if (! menu.contains(event.target)) {
+                    menu.open = false;
+                }
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') {
+                return;
+            }
+
+            const menu = document.querySelector('.mobile-nav[open]');
+
+            if (menu) {
+                menu.open = false;
+                menu.querySelector('summary').focus();
+            }
+        });
+    </script>
 </body>
 </html>

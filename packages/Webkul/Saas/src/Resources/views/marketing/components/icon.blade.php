@@ -36,6 +36,7 @@
 
 <svg
     @if ($size) width="{{ $size }}" height="{{ $size }}" @endif
+    class="icon-{{ $name }}"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

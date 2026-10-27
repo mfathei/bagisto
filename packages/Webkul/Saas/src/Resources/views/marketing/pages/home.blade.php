@@ -64,7 +64,7 @@
                                 @foreach (trans('saas::marketing.home.hero.kpis') as $kpi)
                                     <div class="kpi">
                                         <small>{{ $kpi }}</small>
-                                        <span style="display:block; margin-top:8px; width:62%; height:12px; border-radius:999px; background:#e8edf4;"></span>
+                                        <span class="kpi-placeholder"></span>
                                         <span class="bar"><i></i></span>
                                     </div>
                                 @endforeach
@@ -119,7 +119,7 @@
         </div>
     </section>
 
-    <section class="section" style="background: #fff; border-block: 1px solid var(--line);">
+    <section class="section section-surface">
         <div class="shell">
             <x-marketing::section-heading
                 :eyebrow="trans('saas::marketing.home.features.eyebrow')"
@@ -173,7 +173,7 @@
         </div>
     </section>
 
-    <section class="section" style="background: #fff; border-block: 1px solid var(--line);">
+    <section class="section section-surface">
         <div class="shell">
             <x-marketing::section-heading
                 :eyebrow="trans('saas::marketing.home.showcase.eyebrow')"
@@ -279,7 +279,7 @@
         </div>
     </section>
 
-    <section class="section" style="background: #fff; border-block: 1px solid var(--line);">
+    <section class="section section-surface">
         <div class="shell">
             <x-marketing::section-heading
                 :eyebrow="trans('saas::marketing.home.why.eyebrow')"
