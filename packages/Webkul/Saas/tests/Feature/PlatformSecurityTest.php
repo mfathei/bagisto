@@ -3,6 +3,8 @@
 use Illuminate\Support\Str;
 use Webkul\Saas\Enums\DomainStatus;
 use Webkul\Saas\Enums\TenantStatus;
+use Webkul\Saas\Models\SuperAdmin;
+use Webkul\Saas\Policies\TenantPolicy;
 use Webkul\Saas\Services\DomainService;
 use Webkul\User\Models\Admin as AdminModel;
 use Webkul\User\Models\Role;
@@ -92,6 +94,37 @@ it('returns not found when an administrator changes another tenant primary domai
     expect((int) $domain->refresh()->tenant_id)->toBe($other->getKey());
 });
 
+// ==== Host Resolution ====
+
+it('returns not found for a host that belongs to no tenant', function () {
+    $this->createTenant();
+
+    $this->get('http://unknown-'.Str::lower(Str::random(8)).'.example.com/')
+        ->assertNotFound();
+});
+
+it('serves the storefront of a verified tenant host', function () {
+    $tenant = $this->createTenant();
+
+    $domain = app(DomainService::class)->registerPlatformDomain($tenant);
+
+    expect($domain->status->value)->toBe(DomainStatus::Verified->value);
+
+    $this->get('http://'.$domain->hostname.'/')->assertOk();
+});
+
+it('returns service unavailable for the host of a suspended tenant', function () {
+    $tenant = $this->createTenant([
+        'status' => TenantStatus::Suspended->value,
+        'suspended_at' => now(),
+        'suspension_reason' => 'Billing hold',
+    ]);
+
+    $domain = app(DomainService::class)->registerPlatformDomain($tenant);
+
+    $this->get('http://'.$domain->hostname.'/')->assertStatus(503);
+});
+
 // ==== Api Boundary ====
 
 it('rejects api requests without a token', function () {
@@ -127,4 +160,42 @@ it('rejects api tokens that are not attached to a tenant', function () {
     $this->withHeader('Authorization', 'Bearer '.$token)
         ->getJson('/api/v1/saas/tenant')
         ->assertForbidden();
+});
+
+// ==== Policy Boundaries ====
+
+it('denies a tenant administrator the platform tenant listing', function () {
+    $tenant = $this->createTenant();
+    $admin = $this->createTenantAdmin($tenant);
+
+    expect((new TenantPolicy)->viewAny($admin))->toBeFalse();
+});
+
+it('allows a super admin to list tenants', function () {
+    $superAdmin = SuperAdmin::create([
+        'name' => 'Platform Owner',
+        'email' => Str::lower(Str::random(10)).'@example.com',
+        'password' => 'secret-password',
+        'role' => 'owner',
+        'status' => true,
+    ]);
+
+    expect((new TenantPolicy)->viewAny($superAdmin))->toBeTrue();
+});
+
+it('allows a support super admin to read tenants but not manage them', function () {
+    $superAdmin = SuperAdmin::create([
+        'name' => 'Support Agent',
+        'email' => Str::lower(Str::random(10)).'@example.com',
+        'password' => 'secret-password',
+        'role' => 'support',
+        'status' => true,
+    ]);
+
+    $tenant = $this->createTenant();
+    $policy = new TenantPolicy;
+
+    expect($policy->viewAny($superAdmin))->toBeTrue()
+        ->and($policy->update($superAdmin, $tenant))->toBeFalse()
+        ->and($policy->delete($superAdmin, $tenant))->toBeFalse();
 });

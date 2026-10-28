@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
-use Webkul\Saas\Models\Tenant;
 use Webkul\Saas\Services\TenantContext;
 use Webkul\Saas\Services\TenantResolver;
 
@@ -49,10 +48,6 @@ class ResolveTenantFromHost
         $result = $this->resolver->resolveWithReason($host);
 
         if (! $result['tenant']) {
-            if (! $this->tenantsExist()) {
-                return $next($request);
-            }
-
             $status = $result['reason'] === 'suspended' ? 503 : 404;
 
             if ($request->expectsJson()) {
@@ -119,13 +114,5 @@ class ResolveTenantFromHost
         }
 
         $session->put('saas_tenant_id', $tenant->getKey());
-    }
-
-    /**
-     * Whether any tenant exists, used to keep plain Bagisto installs working.
-     */
-    protected function tenantsExist(): bool
-    {
-        return Tenant::query()->exists();
     }
 }

@@ -21,6 +21,20 @@ use Webkul\User\Models\Role;
 class SaasTestCase extends AdminTestCase
 {
     /**
+     * Boot the application with the SaaS module switched on.
+     *
+     * The shared PHPUnit configuration disables SaaS so the single-store
+     * storefront suites keep their routing; this suite opts back in before
+     * the providers register routes and tenant guards.
+     */
+    public function createApplication()
+    {
+        $this->setSaasEnvironment('true');
+
+        return parent::createApplication();
+    }
+
+    /**
      * Clear any context left behind by a previous test.
      */
     protected function setUp(): void
@@ -31,13 +45,27 @@ class SaasTestCase extends AdminTestCase
     }
 
     /**
-     * Clear the tenant context before the application is torn down.
+     * Clear the tenant context and switch SaaS off again before teardown.
      */
     protected function tearDown(): void
     {
         app(TenantContext::class)->clear();
 
         parent::tearDown();
+
+        $this->setSaasEnvironment('false');
+    }
+
+    /**
+     * Write the SaaS switch into every environment repository PHPUnit and Dotenv read.
+     */
+    protected function setSaasEnvironment(string $value): void
+    {
+        $_ENV['SAAS_ENABLED'] = $value;
+
+        $_SERVER['SAAS_ENABLED'] = $value;
+
+        putenv('SAAS_ENABLED='.$value);
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use Webkul\BookingProduct\Models\Booking;
 use Webkul\CartRule\Models\CartRule;
 use Webkul\CatalogRule\Models\CatalogRule;
 use Webkul\Category\Models\Category;
@@ -7,9 +8,12 @@ use Webkul\Checkout\Models\Cart;
 use Webkul\CMS\Models\Page;
 use Webkul\Customer\Models\Customer;
 use Webkul\Customer\Models\Wishlist;
+use Webkul\EUWithdrawal\Models\Withdrawal;
+use Webkul\GDPR\Models\GDPRDataRequest;
 use Webkul\Inventory\Models\InventorySource;
 use Webkul\Product\Models\Product;
 use Webkul\Product\Models\ProductReview;
+use Webkul\RMA\Models\RMA;
 use Webkul\Sales\Models\Invoice;
 use Webkul\Sales\Models\Order;
 use Webkul\Sales\Models\OrderTransaction;
@@ -240,6 +244,12 @@ return [
     | role holds only these ACL keys. Platform settings, channels, inventory
     | sources and the platform user/role screens are deliberately excluded.
     |
+    | Modules whose tables are still platform-wide are read-only or withheld:
+    | attributes and attribute families are global schema, customer groups are
+    | shared pricing buckets, and marketing communications plus search/SEO
+    | write to tables without tenant ownership. RMA configuration is withheld
+    | for the same reason while order-bound RMA records are tenant-scoped.
+    |
     */
 
     'tenant_role_permissions' => [
@@ -265,21 +275,9 @@ return [
         'sales.rma.requests',
         'sales.rma.requests.create',
         'sales.rma.reasons',
-        'sales.rma.reasons.create',
-        'sales.rma.reasons.edit',
-        'sales.rma.reasons.delete',
         'sales.rma.rules',
-        'sales.rma.rules.create',
-        'sales.rma.rules.edit',
-        'sales.rma.rules.delete',
         'sales.rma.statuses',
-        'sales.rma.statuses.create',
-        'sales.rma.statuses.edit',
-        'sales.rma.statuses.delete',
         'sales.rma.custom-fields',
-        'sales.rma.custom-fields.create',
-        'sales.rma.custom-fields.edit',
-        'sales.rma.custom-fields.delete',
         'sales.eu_withdrawals',
         'sales.eu_withdrawals.view',
         'sales.eu_withdrawals.decline',
@@ -297,13 +295,7 @@ return [
         'catalog.categories.edit',
         'catalog.categories.delete',
         'catalog.attributes',
-        'catalog.attributes.create',
-        'catalog.attributes.edit',
-        'catalog.attributes.delete',
         'catalog.families',
-        'catalog.families.create',
-        'catalog.families.edit',
-        'catalog.families.delete',
         'customers',
         'customers.customers',
         'customers.customers.create',
@@ -316,9 +308,6 @@ return [
         'customers.addresses.delete',
         'customers.note',
         'customers.groups',
-        'customers.groups.create',
-        'customers.groups.edit',
-        'customers.groups.delete',
         'customers.reviews',
         'customers.reviews.edit',
         'customers.reviews.delete',
@@ -336,39 +325,6 @@ return [
         'marketing.promotions.catalog_rules.create',
         'marketing.promotions.catalog_rules.edit',
         'marketing.promotions.catalog_rules.delete',
-        'marketing.communications',
-        'marketing.communications.email_templates',
-        'marketing.communications.email_templates.create',
-        'marketing.communications.email_templates.edit',
-        'marketing.communications.email_templates.delete',
-        'marketing.communications.events',
-        'marketing.communications.events.create',
-        'marketing.communications.events.edit',
-        'marketing.communications.events.delete',
-        'marketing.communications.campaigns',
-        'marketing.communications.campaigns.create',
-        'marketing.communications.campaigns.edit',
-        'marketing.communications.campaigns.delete',
-        'marketing.communications.subscribers',
-        'marketing.communications.subscribers.edit',
-        'marketing.communications.subscribers.delete',
-        'marketing.search_seo',
-        'marketing.search_seo.url_rewrites',
-        'marketing.search_seo.url_rewrites.create',
-        'marketing.search_seo.url_rewrites.edit',
-        'marketing.search_seo.url_rewrites.delete',
-        'marketing.search_seo.search_terms',
-        'marketing.search_seo.search_terms.create',
-        'marketing.search_seo.search_terms.edit',
-        'marketing.search_seo.search_terms.delete',
-        'marketing.search_seo.search_synonyms',
-        'marketing.search_seo.search_synonyms.create',
-        'marketing.search_seo.search_synonyms.edit',
-        'marketing.search_seo.search_synonyms.delete',
-        'marketing.search_seo.sitemaps',
-        'marketing.search_seo.sitemaps.create',
-        'marketing.search_seo.sitemaps.edit',
-        'marketing.search_seo.sitemaps.delete',
         'reporting',
         'reporting.sales',
         'reporting.customers',
@@ -414,6 +370,10 @@ return [
         CatalogRule::class,
         Wishlist::class,
         ProductReview::class,
+        Booking::class,
+        Withdrawal::class,
+        GDPRDataRequest::class,
+        RMA::class,
     ],
 
     /*

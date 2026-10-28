@@ -13,8 +13,7 @@ class TenantPolicy
      */
     public function viewAny(mixed $user): bool
     {
-        return $this->platformAbility($user, 'tenants.view')
-            || $user instanceof Admin;
+        return $this->platformAbility($user, 'tenants.view');
     }
 
     /**

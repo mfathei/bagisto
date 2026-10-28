@@ -137,6 +137,12 @@ class TenantManager
      */
     public function update(Tenant $tenant, array $data): Tenant
     {
+        $previousSlug = (string) $tenant->slug;
+
+        if (array_key_exists('slug', $data) && (string) $data['slug'] !== $previousSlug) {
+            $data['slug'] = $this->domains->assertSlugAvailable((string) $data['slug'], $tenant->getKey());
+        }
+
         $fields = [
             'name',
             'slug',
@@ -167,6 +173,10 @@ class TenantManager
         }
 
         $tenant->save();
+
+        if ($previousSlug !== (string) $tenant->slug) {
+            $this->domains->registerPlatformDomain($tenant);
+        }
 
         if (! empty($data['owner_name']) && $tenant->owner_admin_id) {
             $this->admins->update(['name' => $data['owner_name']], $tenant->owner_admin_id);

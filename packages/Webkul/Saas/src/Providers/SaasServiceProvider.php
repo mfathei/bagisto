@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,7 @@ use Webkul\Saas\Http\Middleware\ResolveTenantForApi;
 use Webkul\Saas\Http\Middleware\ResolveTenantFromHost;
 use Webkul\Saas\Http\Middleware\SetMarketingLocale;
 use Webkul\Saas\Http\Middleware\SetTenantContextForAdmin;
+use Webkul\Saas\Listeners\ScopeDataGridToTenant;
 use Webkul\Saas\Models\Tenant;
 use Webkul\Saas\Models\TenantUser;
 use Webkul\Saas\Policies\TenantPolicy;
@@ -103,6 +105,8 @@ class SaasServiceProvider extends ServiceProvider
         $this->registerRateLimiters();
 
         $this->registerRoutes();
+
+        $this->registerDataGridScope();
 
         $this->registerTenantGuards();
 
@@ -282,6 +286,20 @@ class SaasServiceProvider extends ServiceProvider
             return Limit::perHour((int) config('saas.marketing.contact_rate_limit', 5))
                 ->by('contact|'.$request->ip());
         });
+    }
+
+    /**
+     * Scope raw datagrid queries to the active tenant.
+     *
+     * Bagisto datagrids query tables directly, bypassing Eloquent global
+     * scopes, so tenant-owned rows would otherwise be listed to every tenant.
+     */
+    protected function registerDataGridScope(): void
+    {
+        Event::listen(
+            'datagrid.*.query_builder.prepare.after',
+            ScopeDataGridToTenant::class
+        );
     }
 
     /**
